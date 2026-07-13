@@ -18,16 +18,31 @@ export default async function Dashboard() {
     .eq('id', session.user.id)
     .single()
 
-  // Ambil order terakhir
+  // Ambil order terakhir (tanpa join)
   const { data: orders } = await supabase
     .from('orders')
-    .select(`
-      *,
-      jobs:job_id (title, category, price)
-    `)
+    .select('*')
     .eq('user_id', session.user.id)
     .order('created_at', { ascending: false })
     .limit(5)
+
+  // Ambil data job untuk setiap order
+  let ordersWithJobs: any[] = []
+  if (orders) {
+    for (let i = 0; i < orders.length; i++) {
+      const order = orders[i]
+      const { data: job } = await supabase
+        .from('jobs')
+        .select('title, category, price')
+        .eq('id', order.job_id)
+        .single()
+      
+      ordersWithJobs.push({
+        ...order,
+        jobs: job
+      })
+    }
+  }
 
   const statusMap: Record<string, { label: string, color: string }> = {
     'pending': { label: 'Menunggu', color: 'bg-yellow-100 text-yellow-800' },
@@ -93,9 +108,9 @@ export default async function Dashboard() {
             </Link>
           </div>
 
-          {orders && orders.length > 0 ? (
+          {ordersWithJobs && ordersWithJobs.length > 0 ? (
             <div className="space-y-3">
-              {orders.map((order) => (
+              {ordersWithJobs.map((order) => (
                 <div key={order.id} className="flex justify-between items-center border-b pb-3">
                   <div>
                     <p className="font-medium">{order.jobs?.title || 'Order'}</p>
@@ -124,4 +139,4 @@ export default async function Dashboard() {
       </main>
     </div>
   )
-}
+    }
