@@ -56,6 +56,9 @@ export default async function OrderDetail({ params }: PageProps) {
     'Bersih-bersih': '🧹'
   }
 
+  // Cast data ke any untuk menghindari TypeScript error
+  const workers = availableWorkers as any[] || []
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -76,7 +79,7 @@ export default async function OrderDetail({ params }: PageProps) {
           {/* Header Card */}
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6">
             <div className="flex items-center gap-4">
-              <span className="text-5xl">{categoryIcons[job.category] || '🛠️'}</span>
+              <span className="text-5xl">{categoryIcons[job.category as string] || '🛠️'}</span>
               <div>
                 <h1 className="text-2xl font-bold">{job.title}</h1>
                 <p className="text-blue-100">{job.category}</p>
@@ -109,13 +112,13 @@ export default async function OrderDetail({ params }: PageProps) {
               <h2 className="text-sm font-semibold text-gray-500 uppercase mb-3">
                 👷 Pekerja Tersedia
               </h2>
-              {availableWorkers && availableWorkers.length > 0 ? (
+              {workers.length > 0 ? (
                 <div className="space-y-3">
-                  {(availableWorkers as any[]).map((worker) => {
-                    // Ambil nama dari profile dengan aman
-                    const profile = worker.profiles as any
-                    const workerName = profile?.full_name || 'Pekerja'
-                    const workerGender = profile?.gender || ''
+                  {workers.map((worker: any) => {
+                    // Ambil profile dengan aman
+                    const profile = worker.profiles || {}
+                    const workerName = profile.full_name || 'Pekerja'
+                    const workerGender = profile.gender || ''
                     
                     return (
                       <div key={worker.id} className="border rounded-lg p-4 flex justify-between items-center">
@@ -145,7 +148,7 @@ export default async function OrderDetail({ params }: PageProps) {
             </div>
 
             {/* Tombol Pesan */}
-            {availableWorkers && availableWorkers.length > 0 ? (
+            {workers.length > 0 ? (
               <Link
                 href={`/order/${job.id}/book`}
                 className="w-full block text-center bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
@@ -165,4 +168,4 @@ export default async function OrderDetail({ params }: PageProps) {
       </main>
     </div>
   )
-                  }
+}
