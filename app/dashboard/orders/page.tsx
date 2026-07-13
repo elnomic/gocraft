@@ -56,63 +56,66 @@ export default async function OrdersHistory() {
 
         {orders && orders.length > 0 ? (
           <div className="space-y-4">
-            {orders.map((order) => (
-              <div key={order.id} className="bg-white rounded-xl shadow p-6">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-semibold text-lg">{order.jobs?.title}</h3>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
-                        statusMap[order.status]?.color || 'bg-gray-100'
-                      }`}>
-                        <span>{statusMap[order.status]?.icon || '📌'}</span>
-                        {statusMap[order.status]?.label || order.status}
-                      </span>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <p className="text-gray-600">
-                        <span className="font-medium">Kategori:</span> {order.jobs?.category}
-                      </p>
-                      <p className="text-gray-600">
-                        <span className="font-medium">Harga:</span> Rp {order.price_total?.toLocaleString()}
-                      </p>
-                      <p className="text-gray-600 col-span-2">
-                        <span className="font-medium">Alamat:</span> {order.address}
-                      </p>
-                      {order.workers?.profiles && (
-                        <p className="text-gray-600 col-span-2">
-                          <span className="font-medium">Pekerja:</span> {order.workers.profiles.full_name} 
-                          {order.workers.profiles.phone && ` (${order.workers.profiles.phone})`}
+            {(orders as any[]).map((order) => {
+              const workerProfile = order.workers?.profiles as any
+              return (
+                <div key={order.id} className="bg-white rounded-xl shadow p-6">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="font-semibold text-lg">{order.jobs?.title}</h3>
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
+                          statusMap[order.status]?.color || 'bg-gray-100'
+                        }`}>
+                          <span>{statusMap[order.status]?.icon || '📌'}</span>
+                          {statusMap[order.status]?.label || order.status}
+                        </span>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <p className="text-gray-600">
+                          <span className="font-medium">Kategori:</span> {order.jobs?.category}
                         </p>
-                      )}
-                      {order.notes && (
-                        <p className="text-gray-600 col-span-2">
-                          <span className="font-medium">Catatan:</span> {order.notes}
+                        <p className="text-gray-600">
+                          <span className="font-medium">Harga:</span> Rp {order.price_total?.toLocaleString()}
                         </p>
-                      )}
-                      <p className="text-gray-400 text-xs col-span-2">
-                        {new Date(order.created_at).toLocaleDateString('id-ID', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </p>
+                        <p className="text-gray-600 col-span-2">
+                          <span className="font-medium">Alamat:</span> {order.address}
+                        </p>
+                        {workerProfile && (
+                          <p className="text-gray-600 col-span-2">
+                            <span className="font-medium">Pekerja:</span> {workerProfile.full_name || 'Pekerja'} 
+                            {workerProfile.phone && ` (${workerProfile.phone})`}
+                          </p>
+                        )}
+                        {order.notes && (
+                          <p className="text-gray-600 col-span-2">
+                            <span className="font-medium">Catatan:</span> {order.notes}
+                          </p>
+                        )}
+                        <p className="text-gray-400 text-xs col-span-2">
+                          {new Date(order.created_at).toLocaleDateString('id-ID', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         ) : (
           <div className="bg-white rounded-xl shadow p-12 text-center">
             <p className="text-6xl mb-4">📭</p>
             <h3 className="text-xl font-semibold text-gray-700 mb-2">Belum Ada Pesanan</h3>
             <p className="text-gray-500 mb-4">Mulai pesan layanan pertama kamu sekarang</p>
-            <Link href="/order" className="btn-primary inline-block">
+            <Link href="/order" className="bg-blue-600 text-white px-6 py-3 rounded-lg inline-block hover:bg-blue-700">
               Pesan Sekarang
             </Link>
           </div>
@@ -120,4 +123,4 @@ export default async function OrdersHistory() {
       </main>
     </div>
   )
-                }
+                  }
