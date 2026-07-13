@@ -29,22 +29,10 @@ export default async function OrderDetail({ params }: PageProps) {
     notFound()
   }
 
-  // Ambil pekerja yang tersedia
-  const { data: availableWorkers } = await supabase
+  // Ambil pekerja yang tersedia (tanpa join profiles)
+  const { data: workers } = await supabase
     .from('workers')
-    .select(`
-      id,
-      user_id,
-      experience_years,
-      rating,
-      total_reviews,
-      is_available,
-      profiles:user_id (
-        full_name,
-        phone,
-        gender
-      )
-    `)
+    .select('*')
     .eq('is_available', true)
     .order('rating', { ascending: false })
     .limit(5)
@@ -54,27 +42,6 @@ export default async function OrderDetail({ params }: PageProps) {
     'Ledeng': '🔧',
     'Listrik': '⚡',
     'Bersih-bersih': '🧹'
-  }
-
-  // ===== INI YANG PALING PENTING =====
-  // Kita loop manual untuk ambil data
-  let workerList: any[] = []
-  if (availableWorkers) {
-    for (let i = 0; i < availableWorkers.length; i++) {
-      const w = availableWorkers[i] as any
-      // Ambil profile dengan cara manual
-      const profileData = w.profiles as any
-      workerList.push({
-        id: w.id,
-        rating: w.rating || 0,
-        total_reviews: w.total_reviews || 0,
-        experience_years: w.experience_years || 0,
-        is_available: w.is_available,
-        full_name: profileData?.full_name || 'Pekerja',
-        phone: profileData?.phone || '',
-        gender: profileData?.gender || ''
-      })
-    }
   }
 
   return (
@@ -97,7 +64,7 @@ export default async function OrderDetail({ params }: PageProps) {
           {/* Header Card */}
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6">
             <div className="flex items-center gap-4">
-              <span className="text-5xl">{categoryIcons[job.category as string] || '🛠️'}</span>
+              <span className="text-5xl">{categoryIcons[job.category] || '🛠️'}</span>
               <div>
                 <h1 className="text-2xl font-bold">{job.title}</h1>
                 <p className="text-blue-100">{job.category}</p>
@@ -125,24 +92,21 @@ export default async function OrderDetail({ params }: PageProps) {
               </div>
             </div>
 
-            {/* Pekerja Tersedia */}
+            {/* Pekerja Tersedia - SEDERHANA */}
             <div className="mb-6">
               <h2 className="text-sm font-semibold text-gray-500 uppercase mb-3">
                 👷 Pekerja Tersedia
               </h2>
-              {workerList.length > 0 ? (
+              {workers && workers.length > 0 ? (
                 <div className="space-y-3">
-                  {workerList.map((worker) => (
+                  {workers.map((worker: any) => (
                     <div key={worker.id} className="border rounded-lg p-4 flex justify-between items-center">
                       <div>
-                        <p className="font-medium">{worker.full_name}</p>
+                        <p className="font-medium">Pekerja ID: {worker.id.slice(0, 8)}</p>
                         <p className="text-sm text-gray-600">
-                          ⭐ {worker.rating} ({worker.total_reviews} review)
+                          ⭐ {worker.rating || 0} ({worker.total_reviews || 0} review)
                           {worker.experience_years > 0 && ` • ${worker.experience_years} th pengalaman`}
                         </p>
-                        {worker.gender && (
-                          <p className="text-sm text-gray-500">{worker.gender}</p>
-                        )}
                       </div>
                       <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
                         ✅ Tersedia
@@ -159,7 +123,7 @@ export default async function OrderDetail({ params }: PageProps) {
             </div>
 
             {/* Tombol Pesan */}
-            {workerList.length > 0 ? (
+            {workers && workers.length > 0 ? (
               <Link
                 href={`/order/${job.id}/book`}
                 className="w-full block text-center bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
@@ -179,4 +143,4 @@ export default async function OrderDetail({ params }: PageProps) {
       </main>
     </div>
   )
-          }
+}
