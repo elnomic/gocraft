@@ -45,7 +45,7 @@ export default async function OrderPage() {
         <p className="text-gray-600 mb-6">Harga jelas, datang cepat, pekerja terverifikasi</p>
 
         {/* Daftar Pekerjaan */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {jobs?.map((job: any) => (
             <div key={job.id} className="bg-white rounded-xl shadow-md hover:shadow-lg transition p-6 border border-gray-100">
               <div className="flex justify-between items-start mb-3">
@@ -67,7 +67,7 @@ export default async function OrderPage() {
                   Rp {job.price.toLocaleString()}
                 </span>
                 <Link 
-                  href={`/order/${job.id}`}
+                  href={`/order/book/${job.id}`}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition"
                 >
                   Pesan
