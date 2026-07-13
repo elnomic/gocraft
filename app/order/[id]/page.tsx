@@ -8,6 +8,21 @@ interface PageProps {
   }
 }
 
+// Type untuk worker dengan profile
+interface WorkerWithProfile {
+  id: string
+  user_id: string
+  experience_years: number
+  rating: number
+  total_reviews: number
+  is_available: boolean
+  profiles: {
+    full_name: string
+    phone: string
+    gender: string
+  } | null
+}
+
 export default async function OrderDetail({ params }: PageProps) {
   const supabase = createClient()
   
@@ -111,7 +126,7 @@ export default async function OrderDetail({ params }: PageProps) {
               </h2>
               {availableWorkers && availableWorkers.length > 0 ? (
                 <div className="space-y-3">
-                  {availableWorkers.map((worker) => (
+                  {availableWorkers.map((worker: any) => (
                     <div key={worker.id} className="border rounded-lg p-4 flex justify-between items-center">
                       <div>
                         <p className="font-medium">{worker.profiles?.full_name || 'Pekerja'}</p>
@@ -156,4 +171,4 @@ export default async function OrderDetail({ params }: PageProps) {
       </main>
     </div>
   )
-      }
+              }
