@@ -41,7 +41,14 @@ export async function middleware(request: NextRequest) {
   const { data: { session } } = await supabase.auth.getSession()
 
   // Daftar route yang membutuhkan login
-  const protectedRoutes = ['/dashboard', '/order', '/profile']
+  const protectedRoutes = [
+    '/dashboard',
+    '/order',
+    '/profile',
+    '/worker',
+    '/become-worker'
+  ]
+  
   const isProtectedRoute = protectedRoutes.some(route => 
     request.nextUrl.pathname.startsWith(route)
   )
@@ -74,6 +81,19 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Cegah user biasa mengakses worker dashboard
+  if (session && request.nextUrl.pathname.startsWith('/worker')) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_worker')
+      .eq('id', session.user.id)
+      .single()
+
+    if (!profile?.is_worker) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+  }
+
   return response
 }
 
@@ -82,6 +102,8 @@ export const config = {
     '/dashboard/:path*',
     '/order/:path*',
     '/profile/:path*',
+    '/worker/:path*',
     '/auth/:path*',
+    '/become-worker'
   ],
-}
+      }
