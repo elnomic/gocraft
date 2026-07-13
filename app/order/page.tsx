@@ -25,9 +25,6 @@ export default async function OrderPage() {
     'Bersih-bersih': '🧹'
   }
 
-  // Convert ke array biasa
-  const jobList: any[] = jobs || []
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -49,7 +46,7 @@ export default async function OrderPage() {
 
         {/* Daftar Pekerjaan */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {jobList.map((job: any) => (
+          {jobs?.map((job: any) => (
             <div key={job.id} className="bg-white rounded-xl shadow-md hover:shadow-lg transition p-6 border border-gray-100">
               <div className="flex justify-between items-start mb-3">
                 <span className="text-3xl">{categoryIcons[job.category] || '🛠️'}</span>
