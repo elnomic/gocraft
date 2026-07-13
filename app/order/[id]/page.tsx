@@ -8,21 +8,6 @@ interface PageProps {
   }
 }
 
-// Type untuk worker dengan profile
-interface WorkerWithProfile {
-  id: string
-  user_id: string
-  experience_years: number
-  rating: number
-  total_reviews: number
-  is_available: boolean
-  profiles: {
-    full_name: string
-    phone: string
-    gender: string
-  } | null
-}
-
 export default async function OrderDetail({ params }: PageProps) {
   const supabase = createClient()
   
@@ -44,7 +29,7 @@ export default async function OrderDetail({ params }: PageProps) {
     notFound()
   }
 
-  // Ambil pekerja yang tersedia untuk job ini
+  // Ambil pekerja yang tersedia
   const { data: availableWorkers } = await supabase
     .from('workers')
     .select(`
@@ -126,21 +111,30 @@ export default async function OrderDetail({ params }: PageProps) {
               </h2>
               {availableWorkers && availableWorkers.length > 0 ? (
                 <div className="space-y-3">
-                  {availableWorkers.map((worker: any) => (
-                    <div key={worker.id} className="border rounded-lg p-4 flex justify-between items-center">
-                      <div>
-                        <p className="font-medium">{worker.profiles?.full_name || 'Pekerja'}</p>
-                        <p className="text-sm text-gray-600">
-                          ⭐ {worker.rating || 0} ({worker.total_reviews || 0} review)
-                          {worker.experience_years > 0 && ` • ${worker.experience_years} th pengalaman`}
-                        </p>
-                        <p className="text-sm text-gray-500">{worker.profiles?.gender}</p>
+                  {(availableWorkers as any[]).map((worker) => {
+                    // Ambil nama dari profile dengan aman
+                    const profile = worker.profiles as any
+                    const workerName = profile?.full_name || 'Pekerja'
+                    const workerGender = profile?.gender || ''
+                    
+                    return (
+                      <div key={worker.id} className="border rounded-lg p-4 flex justify-between items-center">
+                        <div>
+                          <p className="font-medium">{workerName}</p>
+                          <p className="text-sm text-gray-600">
+                            ⭐ {worker.rating || 0} ({worker.total_reviews || 0} review)
+                            {worker.experience_years > 0 && ` • ${worker.experience_years} th pengalaman`}
+                          </p>
+                          {workerGender && (
+                            <p className="text-sm text-gray-500">{workerGender}</p>
+                          )}
+                        </div>
+                        <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                          ✅ Tersedia
+                        </span>
                       </div>
-                      <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                        ✅ Tersedia
-                      </span>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               ) : (
                 <div className="text-center py-8 bg-gray-50 rounded-lg">
@@ -171,4 +165,4 @@ export default async function OrderDetail({ params }: PageProps) {
       </main>
     </div>
   )
-              }
+                  }
