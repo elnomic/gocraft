@@ -61,7 +61,7 @@ export default async function OrderPage() {
 
         {/* Daftar Pekerjaan */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {jobs?.map((job) => (
+          {jobs?.map((job: any) => (
             <div key={job.id} className="bg-white rounded-xl shadow-md hover:shadow-lg transition p-6 border border-gray-100">
               <div className="flex justify-between items-start mb-3">
                 <span className="text-3xl">{categoryIcons[job.category] || '🛠️'}</span>
@@ -97,20 +97,23 @@ export default async function OrderPage() {
           <h3 className="text-lg font-bold mb-4">👷 Pekerja Tersedia</h3>
           {workers && workers.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {workers.map((worker) => (
-                <div key={worker.id} className="border rounded-lg p-4 flex justify-between items-center">
-                  <div>
-                    <p className="font-medium">{worker.profiles?.full_name || 'Pekerja'}</p>
-                    <p className="text-sm text-gray-600">
-                      ⭐ {worker.rating || 0} ({worker.total_reviews || 0} review)
-                    </p>
-                    <p className="text-xs text-green-600">✅ Tersedia</p>
+              {(workers as any[]).map((worker) => {
+                const profile = worker.profiles as any
+                return (
+                  <div key={worker.id} className="border rounded-lg p-4 flex justify-between items-center">
+                    <div>
+                      <p className="font-medium">{profile?.full_name || 'Pekerja'}</p>
+                      <p className="text-sm text-gray-600">
+                        ⭐ {worker.rating || 0} ({worker.total_reviews || 0} review)
+                      </p>
+                      <p className="text-xs text-green-600">✅ Tersedia</p>
+                    </div>
+                    <span className="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                      Siap
+                    </span>
                   </div>
-                  <span className="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                    Siap
-                  </span>
-                </div>
-              ))}
+                )
+              })}
             </div>
           ) : (
             <p className="text-gray-500 text-center py-4">
@@ -121,4 +124,4 @@ export default async function OrderPage() {
       </main>
     </div>
   )
-          }
+                  }
