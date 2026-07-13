@@ -56,8 +56,26 @@ export default async function OrderDetail({ params }: PageProps) {
     'Bersih-bersih': '🧹'
   }
 
-  // Cast data ke any untuk menghindari TypeScript error
-  const workers = availableWorkers as any[] || []
+  // ===== INI YANG PALING PENTING =====
+  // Kita loop manual untuk ambil data
+  let workerList: any[] = []
+  if (availableWorkers) {
+    for (let i = 0; i < availableWorkers.length; i++) {
+      const w = availableWorkers[i] as any
+      // Ambil profile dengan cara manual
+      const profileData = w.profiles as any
+      workerList.push({
+        id: w.id,
+        rating: w.rating || 0,
+        total_reviews: w.total_reviews || 0,
+        experience_years: w.experience_years || 0,
+        is_available: w.is_available,
+        full_name: profileData?.full_name || 'Pekerja',
+        phone: profileData?.phone || '',
+        gender: profileData?.gender || ''
+      })
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -112,32 +130,25 @@ export default async function OrderDetail({ params }: PageProps) {
               <h2 className="text-sm font-semibold text-gray-500 uppercase mb-3">
                 👷 Pekerja Tersedia
               </h2>
-              {workers.length > 0 ? (
+              {workerList.length > 0 ? (
                 <div className="space-y-3">
-                  {workers.map((worker: any) => {
-                    // Ambil profile dengan aman
-                    const profile = worker.profiles || {}
-                    const workerName = profile.full_name || 'Pekerja'
-                    const workerGender = profile.gender || ''
-                    
-                    return (
-                      <div key={worker.id} className="border rounded-lg p-4 flex justify-between items-center">
-                        <div>
-                          <p className="font-medium">{workerName}</p>
-                          <p className="text-sm text-gray-600">
-                            ⭐ {worker.rating || 0} ({worker.total_reviews || 0} review)
-                            {worker.experience_years > 0 && ` • ${worker.experience_years} th pengalaman`}
-                          </p>
-                          {workerGender && (
-                            <p className="text-sm text-gray-500">{workerGender}</p>
-                          )}
-                        </div>
-                        <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                          ✅ Tersedia
-                        </span>
+                  {workerList.map((worker) => (
+                    <div key={worker.id} className="border rounded-lg p-4 flex justify-between items-center">
+                      <div>
+                        <p className="font-medium">{worker.full_name}</p>
+                        <p className="text-sm text-gray-600">
+                          ⭐ {worker.rating} ({worker.total_reviews} review)
+                          {worker.experience_years > 0 && ` • ${worker.experience_years} th pengalaman`}
+                        </p>
+                        {worker.gender && (
+                          <p className="text-sm text-gray-500">{worker.gender}</p>
+                        )}
                       </div>
-                    )
-                  })}
+                      <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                        ✅ Tersedia
+                      </span>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="text-center py-8 bg-gray-50 rounded-lg">
@@ -148,7 +159,7 @@ export default async function OrderDetail({ params }: PageProps) {
             </div>
 
             {/* Tombol Pesan */}
-            {workers.length > 0 ? (
+            {workerList.length > 0 ? (
               <Link
                 href={`/order/${job.id}/book`}
                 className="w-full block text-center bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
@@ -168,4 +179,4 @@ export default async function OrderDetail({ params }: PageProps) {
       </main>
     </div>
   )
-}
+          }
