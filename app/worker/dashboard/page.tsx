@@ -52,8 +52,8 @@ export default async function WorkerDashboard() {
 
   // Hitung statistik
   const totalOrders = orders?.length || 0
-  const completedOrders = orders?.filter(o => o.status === 'completed').length || 0
-  const pendingOrders = orders?.filter(o => o.status === 'pending' || o.status === 'accepted').length || 0
+  const completedOrders = orders?.filter((o: any) => o.status === 'completed').length || 0
+  const pendingOrders = orders?.filter((o: any) => o.status === 'pending' || o.status === 'accepted').length || 0
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -118,67 +118,70 @@ export default async function WorkerDashboard() {
           
           {orders && orders.length > 0 ? (
             <div className="space-y-4">
-              {orders.map((order) => (
-                <div key={order.id} className="border rounded-lg p-4">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-medium">{order.jobs?.title}</p>
-                      <p className="text-sm text-gray-600">
-                        {order.jobs?.category} • Rp {order.price_total?.toLocaleString()}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        👤 {order.profiles?.full_name} • 📞 {order.profiles?.phone}
-                      </p>
-                      <p className="text-sm text-gray-500 mt-1">
-                        📍 {order.address}
-                      </p>
+              {(orders as any[]).map((order) => {
+                const userProfile = order.profiles as any
+                return (
+                  <div key={order.id} className="border rounded-lg p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-medium">{order.jobs?.title}</p>
+                        <p className="text-sm text-gray-600">
+                          {order.jobs?.category} • Rp {order.price_total?.toLocaleString()}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          👤 {userProfile?.full_name || 'User'} • 📞 {userProfile?.phone || '-'}
+                        </p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          📍 {order.address}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          statusMap[order.status]?.color || 'bg-gray-100'
+                        }`}>
+                          {statusMap[order.status]?.label || order.status}
+                        </span>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        statusMap[order.status]?.color || 'bg-gray-100'
-                      }`}>
-                        {statusMap[order.status]?.label || order.status}
-                      </span>
-                    </div>
+                    
+                    {/* Tombol Aksi */}
+                    {order.status === 'pending' && (
+                      <div className="mt-3 flex gap-2">
+                        <form action={`/worker/accept-order/${order.id}`} method="POST">
+                          <button className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                            Terima
+                          </button>
+                        </form>
+                        <form action={`/worker/reject-order/${order.id}`} method="POST">
+                          <button className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700">
+                            Tolak
+                          </button>
+                        </form>
+                      </div>
+                    )}
+                    
+                    {order.status === 'accepted' && (
+                      <div className="mt-3 flex gap-2">
+                        <form action={`/worker/start-order/${order.id}`} method="POST">
+                          <button className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                            Dalam Perjalanan
+                          </button>
+                        </form>
+                      </div>
+                    )}
+                    
+                    {order.status === 'on_way' && (
+                      <div className="mt-3 flex gap-2">
+                        <form action={`/worker/complete-order/${order.id}`} method="POST">
+                          <button className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                            Selesai
+                          </button>
+                        </form>
+                      </div>
+                    )}
                   </div>
-                  
-                  {/* Tombol Aksi */}
-                  {order.status === 'pending' && (
-                    <div className="mt-3 flex gap-2">
-                      <form action={`/worker/accept-order/${order.id}`} method="POST">
-                        <button className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
-                          Terima
-                        </button>
-                      </form>
-                      <form action={`/worker/reject-order/${order.id}`} method="POST">
-                        <button className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700">
-                          Tolak
-                        </button>
-                      </form>
-                    </div>
-                  )}
-                  
-                  {order.status === 'accepted' && (
-                    <div className="mt-3 flex gap-2">
-                      <form action={`/worker/start-order/${order.id}`} method="POST">
-                        <button className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
-                          Dalam Perjalanan
-                        </button>
-                      </form>
-                    </div>
-                  )}
-                  
-                  {order.status === 'on_way' && (
-                    <div className="mt-3 flex gap-2">
-                      <form action={`/worker/complete-order/${order.id}`} method="POST">
-                        <button className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
-                          Selesai
-                        </button>
-                      </form>
-                    </div>
-                  )}
-                </div>
-              ))}
+                )
+              })}
             </div>
           ) : (
             <div className="text-center py-8 text-gray-500">
@@ -190,4 +193,4 @@ export default async function WorkerDashboard() {
       </main>
     </div>
   )
-          }
+}
