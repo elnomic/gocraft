@@ -33,6 +33,8 @@ export default async function OrdersHistory() {
     'cancelled': { label: 'Dibatalkan', color: 'bg-red-100 text-red-800', icon: '❌' }
   }
 
+  const allOrders = orders as any[] || []
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -54,10 +56,10 @@ export default async function OrdersHistory() {
         <h1 className="text-2xl font-bold mb-2">📋 Riwayat Pesanan</h1>
         <p className="text-gray-600 mb-6">Semua pesanan layanan kamu</p>
 
-        {orders && orders.length > 0 ? (
+        {allOrders.length > 0 ? (
           <div className="space-y-4">
-            {(orders as any[]).map((order) => {
-              const workerProfile = order.workers?.profiles as any
+            {allOrders.map((order: any) => {
+              const workerProfile = order.workers?.profiles || {}
               return (
                 <div key={order.id} className="bg-white rounded-xl shadow p-6">
                   <div className="flex justify-between items-start">
@@ -123,4 +125,4 @@ export default async function OrdersHistory() {
       </main>
     </div>
   )
-                  }
+      }
