@@ -50,10 +50,12 @@ export default async function WorkerDashboard() {
     'cancelled': { label: 'Dibatalkan', color: 'bg-red-100 text-red-800' }
   }
 
+  const allOrders = orders as any[] || []
+  
   // Hitung statistik
-  const totalOrders = orders?.length || 0
-  const completedOrders = orders?.filter((o: any) => o.status === 'completed').length || 0
-  const pendingOrders = orders?.filter((o: any) => o.status === 'pending' || o.status === 'accepted').length || 0
+  const totalOrders = allOrders.length
+  const completedOrders = allOrders.filter((o: any) => o.status === 'completed').length
+  const pendingOrders = allOrders.filter((o: any) => o.status === 'pending' || o.status === 'accepted').length
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -116,10 +118,10 @@ export default async function WorkerDashboard() {
         <div className="bg-white rounded-xl shadow p-6">
           <h2 className="text-lg font-bold mb-4">📋 Pesanan</h2>
           
-          {orders && orders.length > 0 ? (
+          {allOrders.length > 0 ? (
             <div className="space-y-4">
-              {(orders as any[]).map((order) => {
-                const userProfile = order.profiles as any
+              {allOrders.map((order: any) => {
+                const userProfile = order.profiles || {}
                 return (
                   <div key={order.id} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start">
@@ -129,7 +131,7 @@ export default async function WorkerDashboard() {
                           {order.jobs?.category} • Rp {order.price_total?.toLocaleString()}
                         </p>
                         <p className="text-sm text-gray-500">
-                          👤 {userProfile?.full_name || 'User'} • 📞 {userProfile?.phone || '-'}
+                          👤 {userProfile.full_name || 'User'} • 📞 {userProfile.phone || '-'}
                         </p>
                         <p className="text-sm text-gray-500 mt-1">
                           📍 {order.address}
