@@ -11,7 +11,7 @@ export default async function WorkerDashboard() {
     redirect('/auth/login')
   }
 
-  // Ambil profil user
+  // Ambil profil user - PAKAI 'id' BUKAN 'user_id'
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
@@ -52,14 +52,12 @@ export default async function WorkerDashboard() {
 
   const allOrders = orders as any[] || []
   
-  // Hitung statistik
   const totalOrders = allOrders.length
   const completedOrders = allOrders.filter((o: any) => o.status === 'completed').length
   const pendingOrders = allOrders.filter((o: any) => o.status === 'pending' || o.status === 'accepted').length
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="bg-white border-b shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
@@ -83,7 +81,6 @@ export default async function WorkerDashboard() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* Statistik */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           <div className="bg-white p-6 rounded-lg shadow text-center">
             <p className="text-3xl font-bold text-blue-600">{totalOrders}</p>
@@ -99,7 +96,6 @@ export default async function WorkerDashboard() {
           </div>
         </div>
 
-        {/* Toggle Availability */}
         <div className="bg-white p-4 rounded-lg shadow mb-8 flex justify-between items-center">
           <span className="font-medium">Status Ketersediaan</span>
           <form action="/worker/toggle-availability" method="POST">
@@ -114,7 +110,6 @@ export default async function WorkerDashboard() {
           </form>
         </div>
 
-        {/* Daftar Pesanan */}
         <div className="bg-white rounded-xl shadow p-6">
           <h2 className="text-lg font-bold mb-4">📋 Pesanan</h2>
           
@@ -146,7 +141,6 @@ export default async function WorkerDashboard() {
                       </div>
                     </div>
                     
-                    {/* Tombol Aksi */}
                     {order.status === 'pending' && (
                       <div className="mt-3 flex gap-2">
                         <form action={`/worker/accept-order/${order.id}`} method="POST">
