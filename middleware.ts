@@ -23,7 +23,7 @@ export async function middleware(request: NextRequest) {
   )
 
   if (session && isAuth) {
-    // Cek role
+    // Cek role - PAKAI 'id' BUKAN 'user_id'
     const { data: profile } = await supabase
       .from('profiles')
       .select('is_worker')
@@ -33,6 +33,19 @@ export async function middleware(request: NextRequest) {
     if (profile?.is_worker) {
       return NextResponse.redirect(new URL('/worker/dashboard', request.url))
     } else {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+  }
+
+  // Cegah user biasa akses worker dashboard
+  if (session && request.nextUrl.pathname.startsWith('/worker')) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_worker')
+      .eq('id', session.user.id)
+      .single()
+
+    if (!profile?.is_worker) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
   }
