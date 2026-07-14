@@ -11,14 +11,14 @@ export default async function Dashboard() {
     redirect('/auth/login')
   }
 
-  // Ambil profil user
+  // Ambil profil user - PAKAI 'id' BUKAN 'user_id'
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', session.user.id)
     .single()
 
-  // Ambil order terakhir (tanpa join)
+  // Ambil order terakhir
   const { data: orders } = await supabase
     .from('orders')
     .select('*')
@@ -139,4 +139,4 @@ export default async function Dashboard() {
       </main>
     </div>
   )
-    }
+          }
