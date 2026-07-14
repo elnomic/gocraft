@@ -28,7 +28,7 @@ export default function Register() {
     try {
       const supabase = createClient()
 
-      // Validasi umur minimal 17 tahun
+      // Validasi umur
       if (form.birth_date) {
         const birthDate = new Date(form.birth_date)
         const today = new Date()
@@ -38,7 +38,7 @@ export default function Register() {
           age--
         }
         if (age < 17) {
-          setError('Usia minimal 17 tahun')
+          setError('❌ Usia minimal 17 tahun')
           setLoading(false)
           return
         }
@@ -59,15 +59,24 @@ export default function Register() {
         }
       })
 
-      if (authError) throw authError
+      if (authError) {
+        if (authError.message.includes('rate limit')) {
+          setError('❌ Terlalu banyak percobaan. Tunggu 5-10 menit atau pakai email lain.')
+          setLoading(false)
+          return
+        }
+        throw authError
+      }
 
       if (!authData.user) {
-        throw new Error('Gagal membuat akun')
+        setError('❌ Gagal membuat akun. Coba lagi.')
+        setLoading(false)
+        return
       }
 
       const userId = authData.user.id
 
-      // Insert ke tabel profiles
+      // Insert ke profiles - PAKAI 'id' BUKAN 'user_id'
       const { error: profileError } = await supabase
         .from('profiles')
         .insert([{
@@ -80,26 +89,21 @@ export default function Register() {
           is_worker: false
         }])
 
-      if (profileError) throw profileError
+      if (profileError) {
+        console.error('Profile error:', profileError)
+        setError('❌ Gagal menyimpan data profil: ' + profileError.message)
+        setLoading(false)
+        return
+      }
 
       setSuccess(true)
-      setForm({
-        full_name: '',
-        email: '',
-        password: '',
-        phone: '',
-        gender: '',
-        birth_date: '',
-        address: ''
-      })
-
-      // Redirect ke login setelah 3 detik
       setTimeout(() => {
         router.push('/auth/login')
       }, 3000)
 
     } catch (error: any) {
-      setError(error.message || 'Registrasi gagal')
+      console.error('Error:', error)
+      setError(`❌ ${error.message || 'Registrasi gagal'}`)
     } finally {
       setLoading(false)
     }
@@ -111,12 +115,8 @@ export default function Register() {
         <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center">
           <div className="text-6xl mb-4">🎉</div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Pendaftaran Berhasil!</h2>
-          <p className="text-gray-600 mb-4">
-            Cek email kamu untuk verifikasi akun.
-          </p>
-          <p className="text-sm text-gray-500">
-            Mengalihkan ke halaman login...
-          </p>
+          <p className="text-gray-600 mb-4">Cek email untuk verifikasi akun.</p>
+          <p className="text-sm text-gray-500">Mengalihkan ke halaman login...</p>
         </div>
       </div>
     )
@@ -161,6 +161,7 @@ export default function Register() {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               value={form.email}
               onChange={(e) => setForm({...form, email: e.target.value})}
+              placeholder="Pakai email yang belum pernah didaftar"
             />
           </div>
 
@@ -175,8 +176,8 @@ export default function Register() {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               value={form.password}
               onChange={(e) => setForm({...form, password: e.target.value})}
+              placeholder="Minimal 6 karakter"
             />
-            <p className="text-xs text-gray-500 mt-1">Minimal 6 karakter</p>
           </div>
 
           <div>
@@ -250,18 +251,12 @@ export default function Register() {
           </Link>
         </div>
 
-        <div className="mt-4 text-center text-sm">
+        <div className="mt-2 text-center text-sm">
           <Link href="/become-worker" className="text-blue-600 hover:underline">
             Mau jadi pekerja? Daftar di sini
-          </Link>
-        </div>
-
-        <div className="mt-4 text-center text-sm text-gray-600">
-          <Link href="/" className="hover:underline">
-            ← Kembali ke Beranda
           </Link>
         </div>
       </div>
     </div>
   )
-        }
+          }
